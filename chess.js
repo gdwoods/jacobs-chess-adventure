@@ -1,5 +1,186 @@
 // Jacob's Chess Adventure - A fun chess game for learning!
 
+// ===== SOUND EFFECTS SYSTEM =====
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+let soundEnabled = true;
+
+function initAudio() {
+    if (!audioCtx) {
+        audioCtx = new AudioContext();
+    }
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+}
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    const btn = document.getElementById('soundBtn');
+    if (soundEnabled) {
+        btn.textContent = '🔊 Sound On';
+        btn.classList.remove('muted');
+        playSound('select');
+    } else {
+        btn.textContent = '🔇 Sound Off';
+        btn.classList.add('muted');
+    }
+}
+
+// Sound effect generator using Web Audio API
+function playSound(type) {
+    if (!soundEnabled) return;
+    initAudio();
+    if (!audioCtx) return;
+    
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    const now = audioCtx.currentTime;
+    
+    switch(type) {
+        case 'select':
+            // Soft click sound
+            oscillator.frequency.setValueAtTime(800, now);
+            oscillator.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            oscillator.start(now);
+            oscillator.stop(now + 0.1);
+            break;
+            
+        case 'move':
+            // Satisfying "thunk" sound
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(300, now);
+            oscillator.frequency.exponentialRampToValueAtTime(150, now + 0.15);
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            oscillator.start(now);
+            oscillator.stop(now + 0.15);
+            break;
+            
+        case 'capture':
+            // Exciting capture sound - two tones
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(400, now);
+            oscillator.frequency.exponentialRampToValueAtTime(200, now + 0.1);
+            oscillator.frequency.setValueAtTime(600, now + 0.1);
+            oscillator.frequency.exponentialRampToValueAtTime(300, now + 0.2);
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+            oscillator.start(now);
+            oscillator.stop(now + 0.25);
+            break;
+            
+        case 'check':
+            // Alarm-like sound
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(880, now);
+            oscillator.frequency.setValueAtTime(660, now + 0.1);
+            oscillator.frequency.setValueAtTime(880, now + 0.2);
+            gainNode.gain.setValueAtTime(0.15, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            oscillator.start(now);
+            oscillator.stop(now + 0.3);
+            break;
+            
+        case 'checkmate':
+            // Victory fanfare - ascending notes
+            playNote(523, 0, 0.15);      // C5
+            playNote(659, 0.15, 0.15);   // E5
+            playNote(784, 0.3, 0.15);    // G5
+            playNote(1047, 0.45, 0.3);   // C6
+            return; // Don't start the main oscillator
+            
+        case 'gameOver':
+            // Sad trombone - descending
+            playNote(392, 0, 0.2);       // G4
+            playNote(370, 0.2, 0.2);     // F#4
+            playNote(349, 0.4, 0.2);     // F4
+            playNote(330, 0.6, 0.4);     // E4
+            return;
+            
+        case 'castling':
+            // Special double move sound
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(400, now);
+            oscillator.frequency.exponentialRampToValueAtTime(500, now + 0.1);
+            oscillator.frequency.exponentialRampToValueAtTime(400, now + 0.2);
+            oscillator.frequency.exponentialRampToValueAtTime(600, now + 0.3);
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+            oscillator.start(now);
+            oscillator.stop(now + 0.35);
+            break;
+            
+        case 'promotion':
+            // Magic sparkle sound - ascending arpeggio
+            playNote(523, 0, 0.1);       // C5
+            playNote(659, 0.08, 0.1);    // E5
+            playNote(784, 0.16, 0.1);    // G5
+            playNote(1047, 0.24, 0.2);   // C6
+            return;
+            
+        case 'newGame':
+            // Fresh start jingle
+            playNote(523, 0, 0.12);      // C5
+            playNote(659, 0.1, 0.12);    // E5
+            playNote(784, 0.2, 0.2);     // G5
+            return;
+            
+        case 'undo':
+            // Rewind sound
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(600, now);
+            oscillator.frequency.exponentialRampToValueAtTime(300, now + 0.2);
+            gainNode.gain.setValueAtTime(0.15, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            oscillator.start(now);
+            oscillator.stop(now + 0.2);
+            break;
+            
+        case 'hint':
+            // Helpful chime
+            playNote(784, 0, 0.1);       // G5
+            playNote(988, 0.1, 0.15);    // B5
+            return;
+            
+        case 'error':
+            // Gentle "nope" sound
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(200, now);
+            oscillator.frequency.exponentialRampToValueAtTime(150, now + 0.15);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            oscillator.start(now);
+            oscillator.stop(now + 0.15);
+            break;
+    }
+}
+
+// Helper function to play a single note
+function playNote(frequency, delay, duration) {
+    if (!audioCtx) return;
+    
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    const now = audioCtx.currentTime + delay;
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(frequency, now);
+    gainNode.gain.setValueAtTime(0.2, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+    
+    oscillator.start(now);
+    oscillator.stop(now + duration);
+}
+
 // ===== PERSONALIZED MESSAGES FOR JACOB =====
 const messages = {
     welcome: [
@@ -144,6 +325,7 @@ function initGame() {
     document.getElementById('capturedByPlayer').innerHTML = '';
     document.getElementById('capturedByOpponent').innerHTML = '';
     hideModal('victoryModal');
+    playSound('newGame');
 }
 
 // ===== RENDERING =====
@@ -240,6 +422,7 @@ function handleSquareClick(row, col) {
         const square = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
         square.classList.add('selected');
         highlightValidMoves(row, col);
+        playSound('select');
     } else {
         selectedSquare = null;
     }
@@ -279,6 +462,7 @@ function makeMove(fromRow, fromCol, toRow, toCol, isAI = false) {
         
         if (!isAI) {
             showMessage(randomFrom(messages.castling));
+            playSound('castling');
         }
     }
     
@@ -345,8 +529,10 @@ function finishMove(moveData, isAI) {
     if (isCheckmate(currentTurn)) {
         gameOver = true;
         if (currentTurn === 'black') {
+            playSound('checkmate');
             showVictoryModal(randomFrom(messages.checkmate), true);
         } else {
+            playSound('gameOver');
             showVictoryModal(randomFrom(messages.checkmated), false);
         }
         return;
@@ -354,19 +540,23 @@ function finishMove(moveData, isAI) {
     
     if (isStalemate(currentTurn)) {
         gameOver = true;
+        playSound('gameOver');
         showVictoryModal(randomFrom(messages.stalemate), null);
         return;
     }
     
     updateStatus();
     
-    // Show appropriate message
+    // Show appropriate message and play sounds
     if (!isAI) {
         if (moveData.captured) {
+            playSound('capture');
             showMessage(randomFrom(messages.capture));
         } else if (isInCheck('black')) {
+            playSound('check');
             showMessage(randomFrom(messages.check));
         } else {
+            playSound('move');
             showMessage(randomFrom(messages.goodMove));
         }
         
@@ -378,8 +568,14 @@ function finishMove(moveData, isAI) {
             }
         }, 500);
     } else {
-        // After AI move
+        // After AI move - play appropriate sound
+        if (moveData.captured) {
+            playSound('capture');
+        } else {
+            playSound('move');
+        }
         if (isInCheck('white')) {
+            playSound('check');
             showMessage(randomFrom(messages.inCheck));
         }
     }
@@ -401,6 +597,7 @@ function handlePromotion(row, col, color, callback) {
         btn.textContent = piece;
         btn.addEventListener('click', () => {
             board[row][col] = piece;
+            playSound('promotion');
             hideModal('promotionModal');
             if (promotionCallback) promotionCallback();
         });
@@ -972,6 +1169,7 @@ function undoMove() {
     if (movesList.lastChild) movesList.removeChild(movesList.lastChild);
     if (movesList.lastChild) movesList.removeChild(movesList.lastChild);
     
+    playSound('undo');
     showMessage("Move undone! Try a different move, Jacob!");
 }
 
@@ -1015,6 +1213,7 @@ function giveHint() {
             toSquare?.classList.remove('highlight-tutorial');
         }, 3000);
         
+        playSound('hint');
         showMessage(randomFrom(messages.hint));
     }
 }
@@ -1032,6 +1231,7 @@ function randomFrom(arr) {
 document.getElementById('newGameBtn').addEventListener('click', initGame);
 document.getElementById('undoBtn').addEventListener('click', undoMove);
 document.getElementById('hintBtn').addEventListener('click', giveHint);
+document.getElementById('soundBtn').addEventListener('click', toggleSound);
 document.getElementById('playAgainBtn').addEventListener('click', () => {
     hideModal('victoryModal');
     initGame();

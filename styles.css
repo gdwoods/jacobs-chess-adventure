@@ -295,6 +295,15 @@ body {
     color: white;
 }
 
+.btn-sound {
+    background: linear-gradient(135deg, var(--success-color), #00cec9);
+    color: white;
+}
+
+.btn-sound.muted {
+    background: linear-gradient(135deg, #b2bec3, #636e72);
+}
+
 /* Tips Section */
 .tips-section {
     margin-top: 25px;
