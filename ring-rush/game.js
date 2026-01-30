@@ -186,11 +186,14 @@ function update(dt) {
     
     // Spawn obstacles (with minimum spacing)
     obstacleSpawnTimer += dt;
-    const minSpawnInterval = Math.max(80, 200 / speed);  // Minimum time between obstacles
-    const lastObstacleX = obstacles.length > 0 ? obstacles[obstacles.length - 1].x : canvas.width + 200;
+    const minSpawnInterval = Math.max(60, 150 / speed);  // Minimum time between obstacles
     
-    if (obstacleSpawnTimer > minSpawnInterval && distance > 100 && lastObstacleX < canvas.width - 150) {
-        if (Math.random() < 0.3) {  // Reduced spawn chance
+    // Check if last obstacle has moved far enough from spawn point
+    const lastObstacleX = obstacles.length > 0 ? obstacles[obstacles.length - 1].x : 0;
+    const canSpawn = obstacles.length === 0 || lastObstacleX < canvas.width - 200;
+    
+    if (obstacleSpawnTimer > minSpawnInterval && distance > 100 && canSpawn) {
+        if (Math.random() < 0.5) {  // 50% chance when conditions met
             spawnObstacle();
         }
         obstacleSpawnTimer = 0;
