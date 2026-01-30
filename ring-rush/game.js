@@ -16,12 +16,22 @@ const player = {
     width: 50,
     height: 60,
     velocityY: 0,
+    velocityX: 0,          // Horizontal movement
     isJumping: false,
     jumpPower: -22,        // Higher jump
     gravity: 0.7,          // Floatier feel
     groundY: 0,
     canDoubleJump: true,   // Double jump for kids!
-    hasDoubleJumped: false
+    hasDoubleJumped: false,
+    moveSpeed: 6,          // How fast left/right movement is
+    minX: 30,              // Left boundary
+    maxX: 200              // Right boundary (can't go too far right)
+};
+
+// Track which keys are held down
+const keysPressed = {
+    left: false,
+    right: false
 };
 
 // Game objects
@@ -89,10 +99,23 @@ function handleKeyDown(e) {
         e.preventDefault();
         jump();
     }
+    if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        keysPressed.left = true;
+    }
+    if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        keysPressed.right = true;
+    }
 }
 
 function handleKeyUp(e) {
-    // Could add for variable jump height later
+    if (e.code === 'ArrowLeft') {
+        keysPressed.left = false;
+    }
+    if (e.code === 'ArrowRight') {
+        keysPressed.right = false;
+    }
 }
 
 function jump() {
@@ -122,10 +145,14 @@ function startGame() {
     obstacles = [];
     particles = [];
     
+    player.x = 80;
     player.y = player.groundY;
+    player.velocityX = 0;
     player.velocityY = 0;
     player.isJumping = false;
     player.hasDoubleJumped = false;
+    keysPressed.left = false;
+    keysPressed.right = false;
     
     ringSpawnTimer = 0;
     obstacleSpawnTimer = 0;
@@ -166,7 +193,7 @@ function update(dt) {
     speed = baseSpeed + Math.floor(distance / 800) * 0.4;  // Slower speed increase
     speed = Math.min(speed, 10); // Lower cap - stays fun for kids
     
-    // Update player physics
+    // Update player physics - vertical
     player.velocityY += player.gravity * dt;
     player.y += player.velocityY * dt;
     
@@ -176,6 +203,21 @@ function update(dt) {
         player.isJumping = false;
         player.hasDoubleJumped = false;  // Reset double jump when landing
     }
+    
+    // Update player physics - horizontal (left/right movement)
+    if (keysPressed.left) {
+        player.velocityX = -player.moveSpeed;
+    } else if (keysPressed.right) {
+        player.velocityX = player.moveSpeed;
+    } else {
+        player.velocityX = 0;
+    }
+    
+    player.x += player.velocityX * dt;
+    
+    // Keep player within bounds
+    if (player.x < player.minX) player.x = player.minX;
+    if (player.x > player.maxX) player.x = player.maxX;
     
     // Spawn rings
     ringSpawnTimer += dt;
