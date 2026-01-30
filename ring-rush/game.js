@@ -17,9 +17,11 @@ const player = {
     height: 60,
     velocityY: 0,
     isJumping: false,
-    jumpPower: -18,
-    gravity: 0.8,
-    groundY: 0
+    jumpPower: -22,        // Higher jump
+    gravity: 0.7,          // Floatier feel
+    groundY: 0,
+    canDoubleJump: true,   // Double jump for kids!
+    hasDoubleJumped: false
 };
 
 // Game objects
@@ -95,9 +97,18 @@ function handleKeyUp(e) {
 
 function jump() {
     if (!gameRunning) return;
+    
+    // First jump from ground
     if (!player.isJumping) {
         player.velocityY = player.jumpPower;
         player.isJumping = true;
+        player.hasDoubleJumped = false;
+        playSound('jump');
+    }
+    // Double jump in air
+    else if (!player.hasDoubleJumped && player.canDoubleJump) {
+        player.velocityY = player.jumpPower * 0.85;  // Slightly weaker double jump
+        player.hasDoubleJumped = true;
         playSound('jump');
     }
 }
@@ -114,6 +125,7 @@ function startGame() {
     player.y = player.groundY;
     player.velocityY = 0;
     player.isJumping = false;
+    player.hasDoubleJumped = false;
     
     ringSpawnTimer = 0;
     obstacleSpawnTimer = 0;
@@ -149,10 +161,10 @@ function gameLoop(currentTime) {
 }
 
 function update(dt) {
-    // Update distance and speed
+    // Update distance and speed (gradual increase, capped for playability)
     distance += speed * dt * 0.1;
-    speed = baseSpeed + Math.floor(distance / 500) * 0.5;
-    speed = Math.min(speed, 15); // Cap speed
+    speed = baseSpeed + Math.floor(distance / 800) * 0.4;  // Slower speed increase
+    speed = Math.min(speed, 10); // Lower cap - stays fun for kids
     
     // Update player physics
     player.velocityY += player.gravity * dt;
@@ -162,6 +174,7 @@ function update(dt) {
         player.y = player.groundY;
         player.velocityY = 0;
         player.isJumping = false;
+        player.hasDoubleJumped = false;  // Reset double jump when landing
     }
     
     // Spawn rings
@@ -171,10 +184,13 @@ function update(dt) {
         ringSpawnTimer = 0;
     }
     
-    // Spawn obstacles
+    // Spawn obstacles (with minimum spacing)
     obstacleSpawnTimer += dt;
-    if (obstacleSpawnTimer > 120 / speed && distance > 50) {
-        if (Math.random() < 0.4) {
+    const minSpawnInterval = Math.max(80, 200 / speed);  // Minimum time between obstacles
+    const lastObstacleX = obstacles.length > 0 ? obstacles[obstacles.length - 1].x : canvas.width + 200;
+    
+    if (obstacleSpawnTimer > minSpawnInterval && distance > 100 && lastObstacleX < canvas.width - 150) {
+        if (Math.random() < 0.3) {  // Reduced spawn chance
             spawnObstacle();
         }
         obstacleSpawnTimer = 0;
@@ -204,15 +220,23 @@ function update(dt) {
     for (let i = obstacles.length - 1; i >= 0; i--) {
         obstacles[i].x -= speed * dt;
         
-        // Check collision with player (smaller hitbox)
+        // Check collision with player (very forgiving hitbox for kids!)
         const hitbox = {
-            x: player.x + 10,
-            y: player.y + 10,
-            width: player.width - 20,
-            height: player.height - 15
+            x: player.x + 15,           // More inset from left
+            y: player.y + 20,           // More inset from top
+            width: player.width - 30,   // Much narrower
+            height: player.height - 30  // Much shorter
         };
         
-        if (checkCollision(hitbox, obstacles[i])) {
+        // Also shrink obstacle hitbox slightly for fairness
+        const obsHitbox = {
+            x: obstacles[i].x + 5,
+            y: obstacles[i].y + 5,
+            width: obstacles[i].width - 10,
+            height: obstacles[i].height - 10
+        };
+        
+        if (checkCollision(hitbox, obsHitbox)) {
             gameOver();
             return;
         }
@@ -446,15 +470,28 @@ function spawnRing() {
 }
 
 function spawnObstacle() {
-    const types = ['rock', 'spike'];
+    // More variety, but favor smaller obstacles for kids
+    const types = ['small_rock', 'small_rock', 'rock', 'spike'];  // Small rocks more common
     const type = types[Math.floor(Math.random() * types.length)];
+    
+    let width, height;
+    if (type === 'small_rock') {
+        width = 25;
+        height = 25;
+    } else if (type === 'rock') {
+        width = 35;
+        height = 35;
+    } else {
+        width = 45;  // Narrower spikes
+        height = 25;
+    }
     
     const obstacle = {
         x: canvas.width + 30,
-        y: player.groundY + player.height - (type === 'rock' ? 40 : 30),
-        width: type === 'rock' ? 40 : 60,
-        height: type === 'rock' ? 40 : 30,
-        type: type
+        y: player.groundY + player.height - height,
+        width: width,
+        height: height,
+        type: type.includes('rock') ? 'rock' : 'spike'
     };
     obstacles.push(obstacle);
 }
