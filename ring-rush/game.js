@@ -184,16 +184,16 @@ function update(dt) {
         ringSpawnTimer = 0;
     }
     
-    // Spawn obstacles (with minimum spacing)
+    // Spawn obstacles (with generous spacing for kids)
     obstacleSpawnTimer += dt;
-    const minSpawnInterval = Math.max(60, 150 / speed);  // Minimum time between obstacles
+    const minSpawnInterval = Math.max(100, 250 / speed);  // Longer minimum time between obstacles
     
-    // Check if last obstacle has moved far enough from spawn point
+    // Check if last obstacle has moved far enough from spawn point (need lots of space!)
     const lastObstacleX = obstacles.length > 0 ? obstacles[obstacles.length - 1].x : 0;
-    const canSpawn = obstacles.length === 0 || lastObstacleX < canvas.width - 200;
+    const canSpawn = obstacles.length === 0 || lastObstacleX < canvas.width - 350;  // 350px spacing
     
     if (obstacleSpawnTimer > minSpawnInterval && distance > 100 && canSpawn) {
-        if (Math.random() < 0.5) {  // 50% chance when conditions met
+        if (Math.random() < 0.4) {  // 40% chance when conditions met
             spawnObstacle();
         }
         obstacleSpawnTimer = 0;
