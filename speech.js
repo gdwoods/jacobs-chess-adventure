@@ -5,8 +5,8 @@ class ChessSpeech {
   constructor() {
     this.enabled = true;
     this.apiKey = 'sk_e65862fb46e3c95ea3aed082aa3e5e0b68466ac087819660';
-    // Jarnathan Cross - Witty, Knowing & Poise
-    this.voiceId = '7WggD3IoWTIPT19PNyrW';
+    // Lily - Velvety Actress (warm and encouraging)
+    this.voiceId = 'pFZP5JQG7iQjIQuC4Bku';
     this.audioCache = new Map();
     this.currentAudio = null;
     this.isPlaying = false;
@@ -54,7 +54,7 @@ class ChessSpeech {
           },
           body: JSON.stringify({
             text: text,
-            model_id: 'eleven_monolingual_v1',
+            model_id: 'eleven_turbo_v2_5',
             voice_settings: {
               stability: 0.5,
               similarity_boost: 0.75
