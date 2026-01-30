@@ -366,6 +366,7 @@ function setupEventListeners() {
     document.getElementById('viewAchievementsBtn').addEventListener('click', showAchievementsModal);
     document.getElementById('closeAchievements').addEventListener('click', () => hideModal('achievementsModal'));
     document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+    document.getElementById('resetProgressBtn').addEventListener('click', resetProgress);
     
     // Piece selector in tutorial
     document.querySelectorAll('.piece-btn').forEach(btn => {
@@ -1821,6 +1822,33 @@ function updateAchievementsBadges() {
         badge.title = a.name;
         badgesMini.appendChild(badge);
     });
+}
+
+function resetProgress() {
+    if (confirm('Are you sure you want to reset all achievements and stats? This cannot be undone!')) {
+        // Clear localStorage
+        localStorage.removeItem('jacobChessAchievements');
+        localStorage.removeItem('jacobChessStats');
+        
+        // Reset in-memory achievements
+        Object.values(ACHIEVEMENTS).forEach(a => a.earned = false);
+        
+        // Reset stats
+        playerStats = {
+            gamesPlayed: 0,
+            gamesWon: 0,
+            totalCaptures: 0,
+            checksGiven: 0
+        };
+        
+        // Update UI
+        updateAchievementsBadges();
+        showAchievementsModal(); // Refresh the modal
+        
+        // Feedback
+        playSound('undo');
+        chessSpeech.speak("Progress reset! Ready for a fresh start, Jacob!");
+    }
 }
 
 function showAchievementsModal() {
