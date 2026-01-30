@@ -1068,7 +1068,7 @@ function showVictoryModal(message, isWin) {
         title.style.color = '#00b894';
     } else if (isWin === false) {
         title.textContent = '🎮 Good Game, Jacob! 🎮';
-        title.style.color = '#6c5ce7';
+        title.style.color = '#1e7e34';
     } else {
         title.textContent = "🤝 It's a Draw! 🤝";
         title.style.color = '#fdcb6e';

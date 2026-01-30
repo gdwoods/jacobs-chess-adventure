@@ -7,9 +7,9 @@
 }
 
 :root {
-    --primary-color: #6c5ce7;
-    --secondary-color: #a29bfe;
-    --accent-color: #fd79a8;
+    --primary-color: #1e7e34;
+    --secondary-color: #52b788;
+    --accent-color: #40916c;
     --success-color: #00b894;
     --warning-color: #fdcb6e;
     --light-square: #f8e8d4;
@@ -17,13 +17,13 @@
     --highlight-color: #74b9ff;
     --valid-move-color: rgba(0, 184, 148, 0.5);
     --capture-color: rgba(255, 118, 117, 0.6);
-    --selected-color: rgba(108, 92, 231, 0.5);
+    --selected-color: rgba(30, 126, 52, 0.5);
     --check-color: rgba(255, 71, 87, 0.7);
 }
 
 body {
     font-family: 'Segoe UI', 'Comic Sans MS', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e7e34 0%, #0d4f22 100%);
     min-height: 100vh;
     padding: 20px;
 }
@@ -78,8 +78,8 @@ body {
 }
 
 @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(108, 92, 231, 0.4); }
-    50% { box-shadow: 0 0 0 10px rgba(108, 92, 231, 0); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(30, 126, 52, 0.4); }
+    50% { box-shadow: 0 0 0 10px rgba(30, 126, 52, 0); }
 }
 
 /* Game Area */
@@ -190,7 +190,7 @@ body {
 
 .square.selected {
     background-color: var(--selected-color) !important;
-    box-shadow: inset 0 0 20px rgba(108, 92, 231, 0.8);
+    box-shadow: inset 0 0 20px rgba(30, 126, 52, 0.8);
 }
 
 .square.valid-move::after {
