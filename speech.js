@@ -5,8 +5,8 @@ class ChessSpeech {
   constructor() {
     this.enabled = true;
     this.apiKey = 'sk_e65862fb46e3c95ea3aed082aa3e5e0b68466ac087819660';
-    // Bella voice - friendly and warm
-    this.voiceId = 'EXAVITQu4vr4xnSDxMaL';
+    // Jarnathan Cross - Witty, Knowing & Poise
+    this.voiceId = '7WggD3IoWTIPT19PNyrW';
     this.audioCache = new Map();
     this.currentAudio = null;
     this.isPlaying = false;
