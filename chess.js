@@ -18,11 +18,11 @@ function toggleSound() {
     soundEnabled = !soundEnabled;
     const btn = document.getElementById('soundBtn');
     if (soundEnabled) {
-        btn.textContent = '🔊';
+        btn.textContent = '🔊 Sound';
         btn.classList.remove('muted');
         playSound('select');
     } else {
-        btn.textContent = '🔇';
+        btn.textContent = '🔇 Muted';
         btn.classList.add('muted');
     }
 }
@@ -1195,7 +1195,13 @@ function makeAIMove() {
 // ===== THREATENED PIECES =====
 function toggleThreatened() {
     showThreatenedPieces = !showThreatenedPieces;
-    document.getElementById('dangerBtn').classList.toggle('active', showThreatenedPieces);
+    const btn = document.getElementById('dangerBtn');
+    btn.classList.toggle('active', showThreatenedPieces);
+    if (showThreatenedPieces) {
+        btn.textContent = '⚠️ Threats: ON';
+    } else {
+        btn.textContent = '⚠️ Threats: Off';
+    }
     renderBoard();
 }
 

@@ -445,7 +445,6 @@ body {
 .btn-sound {
     background: linear-gradient(135deg, var(--success-color), #00cec9);
     color: white;
-    padding: 10px 14px;
 }
 
 .btn-sound.muted {
@@ -457,14 +456,17 @@ body {
     color: white;
 }
 
-.btn-danger {
-    background: linear-gradient(135deg, #fab1a0, #e17055);
-    color: white;
-    padding: 10px 14px;
+.btn-threat {
+    background: linear-gradient(135deg, #dfe6e9, #b2bec3);
+    color: #636e72;
+    border: 2px solid #b2bec3;
 }
 
-.btn-danger.active {
+.btn-threat.active {
     background: linear-gradient(135deg, var(--danger-color), #c0392b);
+    color: white;
+    border: 2px solid var(--danger-color);
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
 }
 
 .btn-small {
