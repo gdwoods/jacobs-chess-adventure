@@ -17,10 +17,15 @@ function initAudio() {
 function toggleSound() {
     soundEnabled = !soundEnabled;
     const btn = document.getElementById('soundBtn');
+    
+    // Connect speech to sound toggle
+    chessSpeech.setEnabled(soundEnabled);
+    
     if (soundEnabled) {
         btn.textContent = '🔊 Sound';
         btn.classList.remove('muted');
         playSound('select');
+        chessSpeech.speak("Sound on!");
     } else {
         btn.textContent = '🔇 Muted';
         btn.classList.add('muted');
@@ -451,6 +456,15 @@ function initGame() {
     document.getElementById('capturedByOpponent').innerHTML = '';
     hideModal('victoryModal');
     playSound('newGame');
+    
+    // Speech welcome (delayed slightly so sound plays first)
+    setTimeout(() => {
+        if (gameMode === 'ai') {
+            speakWelcome();
+        } else {
+            chessSpeech.speak("Two player mode! White goes first!");
+        }
+    }, 500);
 }
 
 // ===== RENDERING =====
@@ -689,6 +703,7 @@ function makeMove(fromRow, fromCol, toRow, toCol, isAI = false) {
         if (!isAI && gameMode === 'ai') {
             showMessage(randomFrom(messages.castling));
             playSound('castling');
+            speakCastling(); // Speech for castling
         }
     }
     
@@ -780,9 +795,11 @@ function finishMove(moveData, isAI) {
             }
             // Victory sound is played in createConfetti
             showVictoryModal(randomFrom(messages.checkmate), true);
+            setTimeout(() => speakCheckmate(true), 800); // Speech: Jacob won!
         } else {
             playSound('gameOver');
             showVictoryModal(randomFrom(messages.checkmated), false);
+            setTimeout(() => speakCheckmate(false), 800); // Speech: Computer won
         }
         return;
     }
@@ -791,6 +808,7 @@ function finishMove(moveData, isAI) {
         gameOver = true;
         playSound('gameOver');
         showVictoryModal(randomFrom(messages.stalemate), null);
+        setTimeout(() => speakStalemate(), 800); // Speech: It's a draw
         return;
     }
     
@@ -801,6 +819,7 @@ function finishMove(moveData, isAI) {
         if (moveData.captured) {
             playSound('capture');
             showMessage(randomFrom(messages.capture));
+            speakCapture(); // Speech feedback for capture
         } else if (isInCheck('black')) {
             playSound('check');
             gameStats.checksThisGame++;
@@ -808,9 +827,11 @@ function finishMove(moveData, isAI) {
             saveStats();
             if (gameStats.checksThisGame >= 3) checkAchievement('checkmaster');
             showMessage(randomFrom(messages.check));
+            speakCheck(false); // Jacob put opponent in check
         } else {
             playSound('move');
             showMessage(randomFrom(messages.goodMove));
+            speakEncouragement(); // Speech encouragement
         }
         
         // AI makes a move after a short delay
@@ -823,14 +844,24 @@ function finishMove(moveData, isAI) {
     } else if (gameMode === 'twoPlayer') {
         if (moveData.captured) {
             playSound('capture');
+            speakCapture();
         } else {
             playSound('move');
         }
         if (isInCheck(currentTurn)) {
             playSound('check');
+            speakCheck(currentTurn === 'white'); // Check who's in check
         }
     } else {
-        // After AI move
+        // After AI move - announce what computer did
+        const colNames = 'abcdefgh';
+        const rowNames = '87654321';
+        const toSquare = colNames[moveData.to.col] + rowNames[moveData.to.row];
+        
+        setTimeout(() => {
+            speakComputerMove(moveData.piece, toSquare);
+        }, 300);
+        
         if (moveData.captured) {
             playSound('capture');
         } else {
@@ -839,6 +870,10 @@ function finishMove(moveData, isAI) {
         if (isInCheck('white')) {
             playSound('check');
             showMessage(randomFrom(messages.inCheck));
+            setTimeout(() => speakCheck(true), 1500); // Jacob is in check
+        } else {
+            // Announce Jacob's turn after computer move
+            setTimeout(() => speakTurn(true), 1500);
         }
     }
 }
@@ -869,6 +904,9 @@ function handlePromotion(row, col, color, callback) {
     
     showMessage(randomFrom(messages.pawnPromotion));
     modal.classList.add('show');
+    
+    // Speech for promotion
+    speakPromotion();
 }
 
 // ===== MOVE VALIDATION =====
@@ -1731,6 +1769,9 @@ function checkAchievement(id) {
 
 function showAchievementNotification(achievement) {
     playSound('achievement');
+    
+    // Speech for achievement
+    setTimeout(() => speakAchievement(achievement.name), 300);
     
     const notification = document.createElement('div');
     notification.className = 'achievement-notification';
