@@ -131,6 +131,26 @@ function playSound(type) {
             playNote(784, 0.2, 0.1);
             playNote(1047, 0.3, 0.3);
             return;
+        case 'victory':
+            // Triumphant fanfare!
+            playNote(523, 0, 0.15);
+            playNote(659, 0.12, 0.15);
+            playNote(784, 0.24, 0.15);
+            playNote(1047, 0.36, 0.25);
+            playNote(988, 0.55, 0.1);
+            playNote(1047, 0.65, 0.1);
+            playNote(1175, 0.75, 0.1);
+            playNote(1319, 0.85, 0.4);
+            return;
+        case 'poof':
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(800, now);
+            oscillator.frequency.exponentialRampToValueAtTime(200, now + 0.15);
+            gainNode.gain.setValueAtTime(0.15, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            oscillator.start(now);
+            oscillator.stop(now + 0.15);
+            break;
     }
 }
 
@@ -340,6 +360,7 @@ function setupEventListeners() {
     });
     document.getElementById('viewAchievementsBtn').addEventListener('click', showAchievementsModal);
     document.getElementById('closeAchievements').addEventListener('click', () => hideModal('achievementsModal'));
+    document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
     
     // Piece selector in tutorial
     document.querySelectorAll('.piece-btn').forEach(btn => {
@@ -714,8 +735,15 @@ function makeMove(fromRow, fromCol, toRow, toCol, isAI = false) {
 function finishMove(moveData, isAI) {
     gameStats.moveCount++;
     
-    // Track captured pieces
+    // Track captured pieces and show poof animation
     if (moveData.captured) {
+        // Show poof at capture location
+        const captureRow = moveData.enPassant 
+            ? (isWhitePiece(moveData.piece) ? moveData.to.row + 1 : moveData.to.row - 1)
+            : moveData.to.row;
+        const captureCol = moveData.to.col;
+        showCapturePoof(captureRow, captureCol);
+        
         if (currentTurn === 'white') {
             capturedByWhite.push(moveData.captured);
             gameStats.capturesThisGame++;
@@ -750,7 +778,7 @@ function finishMove(moveData, isAI) {
                 checkAchievement('threeWins');
                 if (gameStats.moveCount < 40) checkAchievement('quickWin');
             }
-            playSound('checkmate');
+            // Victory sound is played in createConfetti
             showVictoryModal(randomFrom(messages.checkmate), true);
         } else {
             playSound('gameOver');
@@ -1192,6 +1220,100 @@ function makeAIMove() {
     });
 }
 
+// ===== FULLSCREEN MODE =====
+function toggleFullscreen() {
+    const container = document.querySelector('.game-container');
+    const btn = document.getElementById('fullscreenBtn');
+    
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (container.requestFullscreen) {
+            container.requestFullscreen();
+        } else if (container.webkitRequestFullscreen) {
+            container.webkitRequestFullscreen();
+        }
+        btn.textContent = '⛶ Exit';
+        btn.classList.add('active');
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        }
+        btn.textContent = '⛶ Fullscreen';
+        btn.classList.remove('active');
+    }
+}
+
+// Listen for fullscreen changes (escape key, etc.)
+document.addEventListener('fullscreenchange', updateFullscreenButton);
+document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+
+function updateFullscreenButton() {
+    const btn = document.getElementById('fullscreenBtn');
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        btn.textContent = '⛶ Fullscreen';
+        btn.classList.remove('active');
+    } else {
+        btn.textContent = '⛶ Exit';
+        btn.classList.add('active');
+    }
+}
+
+// ===== CAPTURE POOF ANIMATION =====
+function showCapturePoof(row, col) {
+    const boardEl = document.getElementById('chessBoard');
+    const square = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+    if (!square) return;
+    
+    const rect = square.getBoundingClientRect();
+    const boardRect = boardEl.getBoundingClientRect();
+    
+    // Create poof container
+    const poof = document.createElement('div');
+    poof.className = 'capture-poof';
+    poof.style.left = (rect.left - boardRect.left + rect.width / 2) + 'px';
+    poof.style.top = (rect.top - boardRect.top + rect.height / 2) + 'px';
+    
+    // Create particles
+    const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd'];
+    const particleCount = 12;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'poof-particle';
+        const angle = (i / particleCount) * Math.PI * 2;
+        const distance = 30 + Math.random() * 20;
+        const size = 6 + Math.random() * 8;
+        
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+        particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+        particle.style.left = -size/2 + 'px';
+        particle.style.top = -size/2 + 'px';
+        
+        poof.appendChild(particle);
+    }
+    
+    // Add explosion emoji in center
+    const boom = document.createElement('div');
+    boom.style.cssText = `
+        position: absolute;
+        font-size: 2rem;
+        left: -16px;
+        top: -16px;
+        animation: poofAnim 0.4s ease-out forwards;
+    `;
+    boom.textContent = '💥';
+    poof.appendChild(boom);
+    
+    boardEl.appendChild(poof);
+    playSound('poof');
+    
+    setTimeout(() => poof.remove(), 600);
+}
+
 // ===== THREATENED PIECES =====
 function toggleThreatened() {
     showThreatenedPieces = !showThreatenedPieces;
@@ -1305,34 +1427,53 @@ function hideModal(modalId) {
 function createConfetti() {
     const confetti = document.getElementById('confetti');
     confetti.innerHTML = '';
-    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96c93d', '#f9d423', '#ff9f43'];
+    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96c93d', '#f9d423', '#ff9f43', '#a29bfe', '#fd79a8'];
+    const emojis = ['🎉', '⭐', '🌟', '✨', '🎊', '🏆', '👑', '💫'];
     
-    for (let i = 0; i < 50; i++) {
+    // Create colorful confetti pieces
+    for (let i = 0; i < 60; i++) {
         const piece = document.createElement('div');
-        piece.style.cssText = `
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: ${colors[Math.floor(Math.random() * colors.length)]};
-            left: ${Math.random() * 100}%;
-            animation: fall ${1 + Math.random()}s ease-out forwards;
-            animation-delay: ${Math.random() * 0.5}s;
-            border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
-        `;
+        piece.className = 'confetti-piece';
+        const isEmoji = Math.random() > 0.7;
+        
+        if (isEmoji) {
+            piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            piece.style.cssText = `
+                left: ${Math.random() * 100}%;
+                font-size: ${1 + Math.random()}rem;
+                animation-duration: ${1.5 + Math.random() * 1.5}s;
+                animation-delay: ${Math.random() * 0.8}s;
+            `;
+        } else {
+            const shapes = ['50%', '0', '50% 0 50% 50%'];
+            piece.style.cssText = `
+                left: ${Math.random() * 100}%;
+                width: ${8 + Math.random() * 12}px;
+                height: ${8 + Math.random() * 12}px;
+                background: ${colors[Math.floor(Math.random() * colors.length)]};
+                border-radius: ${shapes[Math.floor(Math.random() * shapes.length)]};
+                animation-duration: ${1.5 + Math.random() * 1.5}s;
+                animation-delay: ${Math.random() * 0.8}s;
+            `;
+        }
         confetti.appendChild(piece);
     }
     
-    if (!document.getElementById('confetti-styles')) {
-        const style = document.createElement('style');
-        style.id = 'confetti-styles';
-        style.textContent = `
-            @keyframes fall {
-                0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
-                100% { transform: translateY(200px) rotate(720deg); opacity: 0; }
-            }
+    // Create star bursts
+    for (let i = 0; i < 8; i++) {
+        const star = document.createElement('div');
+        star.className = 'star-burst';
+        star.textContent = '⭐';
+        star.style.cssText = `
+            left: ${10 + Math.random() * 80}%;
+            top: ${Math.random() * 30}px;
+            animation-delay: ${Math.random() * 0.5}s;
         `;
-        document.head.appendChild(style);
+        confetti.appendChild(star);
     }
+    
+    // Play victory sound
+    playSound('victory');
 }
 
 function undoMove() {
