@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ring Rush! 💨</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <a href="../index.html" class="back-btn">← Back to Arcade</a>
+            <h1>💨 Ring Rush! 💨</h1>
+        </header>
+
+        <!-- Start Screen -->
+        <div class="screen start-screen" id="startScreen">
+            <div class="start-content">
+                <div class="runner-preview">🏃</div>
+                <h2>Ready to Run, Jacob?</h2>
+                <p>Collect rings, dodge obstacles, run fast!</p>
+                <div class="controls-info">
+                    <span>👆 Tap or Press SPACE to Jump</span>
+                </div>
+                <button class="btn-play" id="startBtn">▶️ START</button>
+                <div class="high-score-display">
+                    🏆 Best Score: <span id="bestScore">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="screen game-screen" id="gameScreen" style="display: none;">
+            <div class="game-hud">
+                <div class="score-display">
+                    <span class="ring-icon">💍</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="distance-display">
+                    📏 <span id="distance">0</span>m
+                </div>
+            </div>
+            
+            <canvas id="gameCanvas"></canvas>
+            
+            <div class="speed-indicator" id="speedIndicator">
+                ⚡ Speed: <span id="speedDisplay">1x</span>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div class="screen gameover-screen" id="gameoverScreen" style="display: none;">
+            <div class="gameover-content">
+                <h2 id="gameoverTitle">💥 Crash!</h2>
+                <div class="final-stats">
+                    <div class="stat">
+                        <span class="stat-icon">💍</span>
+                        <span class="stat-label">Rings</span>
+                        <span class="stat-value" id="finalRings">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">📏</span>
+                        <span class="stat-label">Distance</span>
+                        <span class="stat-value" id="finalDistance">0m</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">⭐</span>
+                        <span class="stat-label">Total Score</span>
+                        <span class="stat-value" id="finalScore">0</span>
+                    </div>
+                </div>
+                <div class="new-record" id="newRecord" style="display: none;">
+                    🎉 NEW RECORD! 🎉
+                </div>
+                <div class="gameover-buttons">
+                    <button class="btn-play" id="retryBtn">🔄 Try Again</button>
+                    <button class="btn-menu" id="menuBtn">🏠 Menu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

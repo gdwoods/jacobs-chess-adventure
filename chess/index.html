@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jacob's Chess Adventure! ♟️</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>🏰 Jacob's Chess Adventure! 🏰</h1>
+            <p class="subtitle">Learn, Play, and Have Fun!</p>
+        </header>
+
+        <!-- Game Mode Selection -->
+        <div class="mode-selection" id="modeSelection">
+            <h3>🎮 Choose Your Adventure!</h3>
+            <div class="mode-buttons">
+                <button class="mode-btn" id="playVsAIBtn">
+                    <span class="mode-icon">🤖</span>
+                    <span class="mode-title">Play vs Chess Buddy</span>
+                    <span class="mode-desc">Practice against the computer</span>
+                </button>
+                <button class="mode-btn" id="playVsFriendBtn">
+                    <span class="mode-icon">👥</span>
+                    <span class="mode-title">Play vs Friend</span>
+                    <span class="mode-desc">Two players, one screen</span>
+                </button>
+                <button class="mode-btn tutorial-btn" id="tutorialBtn">
+                    <span class="mode-icon">📚</span>
+                    <span class="mode-title">Learn the Pieces</span>
+                    <span class="mode-desc">Interactive tutorial</span>
+                </button>
+            </div>
+            <div class="difficulty-selection" id="difficultySelection" style="display: none;">
+                <h4>Select Difficulty:</h4>
+                <div class="difficulty-buttons">
+                    <button class="diff-btn easy" data-difficulty="easy">😊 Easy</button>
+                    <button class="diff-btn medium" data-difficulty="medium">🤔 Medium</button>
+                    <button class="diff-btn hard" data-difficulty="hard">😈 Hard</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Game Area (hidden initially) -->
+        <div class="game-content" id="gameContent" style="display: none;">
+            <div class="message-box" id="messageBox">
+                <span id="gameMessage">Hey Jacob! Ready to play some chess? You're White - click a piece to start!</span>
+            </div>
+
+            <div class="game-area">
+                <div class="player-info opponent">
+                    <div class="player-avatar" id="opponentAvatar">🤖</div>
+                    <div class="player-details">
+                        <span class="player-name" id="opponentName">Chess Buddy</span>
+                        <span class="player-status" id="opponentStatus">Waiting for you...</span>
+                    </div>
+                    <div class="captured-pieces" id="capturedByPlayer"></div>
+                </div>
+
+                <div class="board-container">
+                    <div class="board" id="chessBoard"></div>
+                </div>
+
+                <div class="player-info player">
+                    <div class="player-avatar">
+                        <img src="jp.jpg" alt="Jacob" class="player-photo">
+                    </div>
+                    <div class="player-details">
+                        <span class="player-name" id="playerName">Jacob</span>
+                        <span class="player-status" id="playerStatus">Your turn!</span>
+                    </div>
+                    <div class="captured-pieces" id="capturedByOpponent"></div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-menu" id="menuBtn">🏠 Menu</button>
+                <button class="btn btn-primary" id="newGameBtn">🎮 New Game</button>
+                <button class="btn btn-secondary" id="undoBtn">↩️ Undo</button>
+                <button class="btn btn-hint" id="hintBtn">💡 Hint</button>
+            <button class="btn btn-sound" id="soundBtn" title="Toggle sound effects">🔊 Sound</button>
+            <button class="btn btn-threat" id="dangerBtn" title="Highlight pieces that can be captured">⚠️ Threats: Off</button>
+            <button class="btn btn-fullscreen" id="fullscreenBtn" title="Toggle fullscreen mode">⛶ Fullscreen</button>
+            </div>
+
+            <div class="game-info-row">
+                <div class="tips-section">
+                    <h3>🎓 Chess Tips</h3>
+                    <div class="tip-card" id="tipCard">
+                        <p id="currentTip">Click on any of your white pieces to see where it can move!</p>
+                    </div>
+                </div>
+
+                <div class="achievements-preview" id="achievementsPreview">
+                    <h3>🏆 Achievements</h3>
+                    <div class="badges-mini" id="badgesMini"></div>
+                    <button class="btn btn-small" id="viewAchievementsBtn">View All</button>
+                </div>
+            </div>
+
+            <div class="move-history">
+                <h3>📜 Move History</h3>
+                <div class="moves-list" id="movesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div class="modal" id="victoryModal">
+        <div class="modal-content victory">
+            <h2 id="modalTitle">🎉 Amazing Job, Jacob! 🎉</h2>
+            <p id="modalMessage">You won the game!</p>
+            <div class="confetti" id="confetti"></div>
+            <div class="new-achievements" id="newAchievements"></div>
+            <button class="btn btn-primary" id="playAgainBtn">🎮 Play Again!</button>
+        </div>
+    </div>
+
+    <!-- Promotion Modal -->
+    <div class="modal" id="promotionModal">
+        <div class="modal-content promotion">
+            <h2>🎊 Pawn Promotion! 🎊</h2>
+            <p>Your pawn made it to the end! What piece would you like?</p>
+            <div class="promotion-choices" id="promotionChoices"></div>
+        </div>
+    </div>
+
+    <!-- Tutorial Modal -->
+    <div class="modal" id="tutorialModal">
+        <div class="modal-content tutorial">
+            <button class="close-btn" id="closeTutorial">✕</button>
+            <h2 id="tutorialTitle">📚 Learn the Pieces</h2>
+            <div class="tutorial-content">
+                <div class="piece-selector">
+                    <button class="piece-btn active" data-piece="pawn">♙ Pawn</button>
+                    <button class="piece-btn" data-piece="knight">♘ Knight</button>
+                    <button class="piece-btn" data-piece="bishop">♗ Bishop</button>
+                    <button class="piece-btn" data-piece="rook">♖ Rook</button>
+                    <button class="piece-btn" data-piece="queen">♕ Queen</button>
+                    <button class="piece-btn" data-piece="king">♔ King</button>
+                </div>
+                <div class="tutorial-board-container">
+                    <div class="tutorial-board" id="tutorialBoard"></div>
+                </div>
+                <div class="piece-info" id="pieceInfo">
+                    <h3 id="pieceInfoTitle">The Pawn ♙</h3>
+                    <p id="pieceInfoDesc">Pawns move forward one square, but capture diagonally!</p>
+                    <div class="piece-stats">
+                        <span class="stat">Value: <strong id="pieceValue">1</strong></span>
+                        <span class="stat">Special: <strong id="pieceSpecial">Promotion, En Passant</strong></span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary" id="startPlayingBtn">Start Playing!</button>
+        </div>
+    </div>
+
+    <!-- Piece Info Popup -->
+    <div class="piece-info-popup" id="pieceInfoPopup" style="display: none;">
+        <div class="popup-content">
+            <div class="popup-piece" id="popupPiece">♙</div>
+            <div class="popup-name" id="popupName">Pawn</div>
+            <div class="popup-value">Value: <span id="popupValue">1</span></div>
+            <div class="popup-moves" id="popupMoves">Moves forward, captures diagonally</div>
+        </div>
+    </div>
+
+    <!-- Achievements Modal -->
+    <div class="modal" id="achievementsModal">
+        <div class="modal-content achievements">
+            <button class="close-btn" id="closeAchievements">✕</button>
+            <h2>🏆 Jacob's Achievements</h2>
+            <div class="achievements-grid" id="achievementsGrid"></div>
+            <div class="achievements-footer">
+                <button class="btn btn-reset" id="resetProgressBtn">🔄 Reset Progress</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="speech.js"></script>
+    <script src="chess.js"></script>
+</body>
+</html>

@@ -3,183 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jacob's Chess Adventure! ♟️</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Jacob's Game Arcade! 🎮</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Comic Sans MS', Tahoma, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .arcade-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        header {
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: white;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: rgba(255,255,255,0.9);
+            margin-top: 10px;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+        }
+
+        .game-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            display: block;
+            animation: wiggle 3s ease-in-out infinite;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            75% { transform: rotate(-5deg); }
+        }
+
+        .game-card:nth-child(2) .game-icon {
+            animation-delay: 0.5s;
+        }
+
+        .game-card:nth-child(3) .game-icon {
+            animation-delay: 1s;
+        }
+
+        .game-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .game-card.chess .game-title { color: #1e7e34; }
+        .game-card.ring-rush .game-title { color: #0066ff; }
+        .game-card.coming-soon .game-title { color: #9b59b6; }
+
+        .game-description {
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .game-tag {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .game-card.chess .game-tag {
+            background: linear-gradient(135deg, #1e7e34, #52b788);
+            color: white;
+        }
+
+        .game-card.ring-rush .game-tag {
+            background: linear-gradient(135deg, #0066ff, #00ccff);
+            color: white;
+        }
+
+        .game-card.coming-soon {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .game-card.coming-soon .game-tag {
+            background: #ddd;
+            color: #888;
+        }
+
+        .game-card.coming-soon:hover {
+            transform: none;
+        }
+
+        footer {
+            margin-top: 50px;
+            color: rgba(255,255,255,0.8);
+            font-size: 1rem;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+            .game-icon { font-size: 4rem; }
+            .game-title { font-size: 1.4rem; }
+        }
+    </style>
 </head>
 <body>
-    <div class="game-container">
-        <header class="game-header">
-            <h1>🏰 Jacob's Chess Adventure! 🏰</h1>
-            <p class="subtitle">Learn, Play, and Have Fun!</p>
+    <div class="stars" id="stars"></div>
+    
+    <div class="arcade-container">
+        <header>
+            <h1>🎮 Jacob's Game Arcade! 🎮</h1>
+            <p class="subtitle">Choose your adventure!</p>
         </header>
 
-        <!-- Game Mode Selection -->
-        <div class="mode-selection" id="modeSelection">
-            <h3>🎮 Choose Your Adventure!</h3>
-            <div class="mode-buttons">
-                <button class="mode-btn" id="playVsAIBtn">
-                    <span class="mode-icon">🤖</span>
-                    <span class="mode-title">Play vs Chess Buddy</span>
-                    <span class="mode-desc">Practice against the computer</span>
-                </button>
-                <button class="mode-btn" id="playVsFriendBtn">
-                    <span class="mode-icon">👥</span>
-                    <span class="mode-title">Play vs Friend</span>
-                    <span class="mode-desc">Two players, one screen</span>
-                </button>
-                <button class="mode-btn tutorial-btn" id="tutorialBtn">
-                    <span class="mode-icon">📚</span>
-                    <span class="mode-title">Learn the Pieces</span>
-                    <span class="mode-desc">Interactive tutorial</span>
-                </button>
-            </div>
-            <div class="difficulty-selection" id="difficultySelection" style="display: none;">
-                <h4>Select Difficulty:</h4>
-                <div class="difficulty-buttons">
-                    <button class="diff-btn easy" data-difficulty="easy">😊 Easy</button>
-                    <button class="diff-btn medium" data-difficulty="medium">🤔 Medium</button>
-                    <button class="diff-btn hard" data-difficulty="hard">😈 Hard</button>
-                </div>
+        <div class="games-grid">
+            <a href="chess/index.html" class="game-card chess">
+                <span class="game-icon">♟️</span>
+                <h2 class="game-title">Chess Adventure</h2>
+                <p class="game-description">Play chess against Chess Buddy! Learn moves, earn achievements, and become a chess champion!</p>
+                <span class="game-tag">🏆 Strategy</span>
+            </a>
+
+            <a href="ring-rush/index.html" class="game-card ring-rush">
+                <span class="game-icon">💨</span>
+                <h2 class="game-title">Ring Rush</h2>
+                <p class="game-description">Run fast, collect rings, and dodge obstacles! How far can you go?</p>
+                <span class="game-tag">⚡ Action</span>
+            </a>
+
+            <div class="game-card coming-soon">
+                <span class="game-icon">🦕</span>
+                <h2 class="game-title">Dino Runner</h2>
+                <p class="game-description">Coming soon! Run with dinosaurs in this prehistoric adventure!</p>
+                <span class="game-tag">🔜 Coming Soon</span>
             </div>
         </div>
 
-        <!-- Main Game Area (hidden initially) -->
-        <div class="game-content" id="gameContent" style="display: none;">
-            <div class="message-box" id="messageBox">
-                <span id="gameMessage">Hey Jacob! Ready to play some chess? You're White - click a piece to start!</span>
-            </div>
-
-            <div class="game-area">
-                <div class="player-info opponent">
-                    <div class="player-avatar" id="opponentAvatar">🤖</div>
-                    <div class="player-details">
-                        <span class="player-name" id="opponentName">Chess Buddy</span>
-                        <span class="player-status" id="opponentStatus">Waiting for you...</span>
-                    </div>
-                    <div class="captured-pieces" id="capturedByPlayer"></div>
-                </div>
-
-                <div class="board-container">
-                    <div class="board" id="chessBoard"></div>
-                </div>
-
-                <div class="player-info player">
-                    <div class="player-avatar">
-                        <img src="jp.jpg" alt="Jacob" class="player-photo">
-                    </div>
-                    <div class="player-details">
-                        <span class="player-name" id="playerName">Jacob</span>
-                        <span class="player-status" id="playerStatus">Your turn!</span>
-                    </div>
-                    <div class="captured-pieces" id="capturedByOpponent"></div>
-                </div>
-            </div>
-
-            <div class="controls">
-                <button class="btn btn-menu" id="menuBtn">🏠 Menu</button>
-                <button class="btn btn-primary" id="newGameBtn">🎮 New Game</button>
-                <button class="btn btn-secondary" id="undoBtn">↩️ Undo</button>
-                <button class="btn btn-hint" id="hintBtn">💡 Hint</button>
-            <button class="btn btn-sound" id="soundBtn" title="Toggle sound effects">🔊 Sound</button>
-            <button class="btn btn-threat" id="dangerBtn" title="Highlight pieces that can be captured">⚠️ Threats: Off</button>
-            <button class="btn btn-fullscreen" id="fullscreenBtn" title="Toggle fullscreen mode">⛶ Fullscreen</button>
-            </div>
-
-            <div class="game-info-row">
-                <div class="tips-section">
-                    <h3>🎓 Chess Tips</h3>
-                    <div class="tip-card" id="tipCard">
-                        <p id="currentTip">Click on any of your white pieces to see where it can move!</p>
-                    </div>
-                </div>
-
-                <div class="achievements-preview" id="achievementsPreview">
-                    <h3>🏆 Achievements</h3>
-                    <div class="badges-mini" id="badgesMini"></div>
-                    <button class="btn btn-small" id="viewAchievementsBtn">View All</button>
-                </div>
-            </div>
-
-            <div class="move-history">
-                <h3>📜 Move History</h3>
-                <div class="moves-list" id="movesList"></div>
-            </div>
-        </div>
+        <footer>
+            <p>Made with ❤️ for Jacob</p>
+        </footer>
     </div>
 
-    <!-- Victory Modal -->
-    <div class="modal" id="victoryModal">
-        <div class="modal-content victory">
-            <h2 id="modalTitle">🎉 Amazing Job, Jacob! 🎉</h2>
-            <p id="modalMessage">You won the game!</p>
-            <div class="confetti" id="confetti"></div>
-            <div class="new-achievements" id="newAchievements"></div>
-            <button class="btn btn-primary" id="playAgainBtn">🎮 Play Again!</button>
-        </div>
-    </div>
-
-    <!-- Promotion Modal -->
-    <div class="modal" id="promotionModal">
-        <div class="modal-content promotion">
-            <h2>🎊 Pawn Promotion! 🎊</h2>
-            <p>Your pawn made it to the end! What piece would you like?</p>
-            <div class="promotion-choices" id="promotionChoices"></div>
-        </div>
-    </div>
-
-    <!-- Tutorial Modal -->
-    <div class="modal" id="tutorialModal">
-        <div class="modal-content tutorial">
-            <button class="close-btn" id="closeTutorial">✕</button>
-            <h2 id="tutorialTitle">📚 Learn the Pieces</h2>
-            <div class="tutorial-content">
-                <div class="piece-selector">
-                    <button class="piece-btn active" data-piece="pawn">♙ Pawn</button>
-                    <button class="piece-btn" data-piece="knight">♘ Knight</button>
-                    <button class="piece-btn" data-piece="bishop">♗ Bishop</button>
-                    <button class="piece-btn" data-piece="rook">♖ Rook</button>
-                    <button class="piece-btn" data-piece="queen">♕ Queen</button>
-                    <button class="piece-btn" data-piece="king">♔ King</button>
-                </div>
-                <div class="tutorial-board-container">
-                    <div class="tutorial-board" id="tutorialBoard"></div>
-                </div>
-                <div class="piece-info" id="pieceInfo">
-                    <h3 id="pieceInfoTitle">The Pawn ♙</h3>
-                    <p id="pieceInfoDesc">Pawns move forward one square, but capture diagonally!</p>
-                    <div class="piece-stats">
-                        <span class="stat">Value: <strong id="pieceValue">1</strong></span>
-                        <span class="stat">Special: <strong id="pieceSpecial">Promotion, En Passant</strong></span>
-                    </div>
-                </div>
-            </div>
-            <button class="btn btn-primary" id="startPlayingBtn">Start Playing!</button>
-        </div>
-    </div>
-
-    <!-- Piece Info Popup -->
-    <div class="piece-info-popup" id="pieceInfoPopup" style="display: none;">
-        <div class="popup-content">
-            <div class="popup-piece" id="popupPiece">♙</div>
-            <div class="popup-name" id="popupName">Pawn</div>
-            <div class="popup-value">Value: <span id="popupValue">1</span></div>
-            <div class="popup-moves" id="popupMoves">Moves forward, captures diagonally</div>
-        </div>
-    </div>
-
-    <!-- Achievements Modal -->
-    <div class="modal" id="achievementsModal">
-        <div class="modal-content achievements">
-            <button class="close-btn" id="closeAchievements">✕</button>
-            <h2>🏆 Jacob's Achievements</h2>
-            <div class="achievements-grid" id="achievementsGrid"></div>
-            <div class="achievements-footer">
-                <button class="btn btn-reset" id="resetProgressBtn">🔄 Reset Progress</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="speech.js"></script>
-    <script src="chess.js"></script>
+    <script>
+        // Create twinkling stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 50; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = (Math.random() * 3 + 1) + 'px';
+            star.style.height = star.style.width;
+            star.style.animationDelay = Math.random() * 2 + 's';
+            starsContainer.appendChild(star);
+        }
+    </script>
 </body>
 </html>
