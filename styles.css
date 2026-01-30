@@ -238,6 +238,20 @@ body {
 .player-avatar {
     font-size: 2.5rem;
     animation: wiggle 3s ease-in-out infinite;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.player-photo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary-color);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes wiggle {
